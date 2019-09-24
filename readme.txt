@@ -1,1 +1,2 @@
-Unable to initialize device PRN
+Hello
+New Line
