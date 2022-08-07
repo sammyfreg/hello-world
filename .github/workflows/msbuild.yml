@@ -1,4 +1,4 @@
-name: Build $GITHUB_REF 
+name: Build ${{github.ref}}
 
 on:
   push:
