@@ -13,3 +13,5 @@ Sandbox to test various Git/GitHub features.
 [![(Build VS2022 Main)](https://github.com/sammyfreg/netImgui/actions/workflows/msbuild_vs2022_main.yml/badge.svg?branch=main)](https://github.com/sammyfreg/netImgui/actions/workflows/msbuild_vs2022_main.yml)
 [![(Build VS2022 Dev)](https://github.com/sammyfreg/netImgui/actions/workflows/msbuild_vs2022_dev.yml/badge.svg?branch=dev)](https://github.com/sammyfreg/netImgui/actions/workflows/msbuild_vs2022_dev.yml)
 
+![Stars](https://img.shields.io/github/stars//sammyfreg/netImgui)
+![License](https://img.shields.io/github/license/sammyfreg/netImgui)
