@@ -1,4 +1,4 @@
-name: MSBuild
+name: (Build ${{ github.ref_name }}) 
 
 on:
   push:
