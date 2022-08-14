@@ -38,20 +38,24 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH1}}      
       
-    - name: Build
+    - name: Build Default
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION1}} ${{env.SOLUTION_FILE_PATH1}}
+
+    - name: Build LLVM
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION2}} ${{env.SOLUTION_FILE_PATH1}}
 
     - name: Restore NuGet packages (VS2022)
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH2}}      
       
-    - name: Build
+    - name: Build Default
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION1}} ${{env.SOLUTION_FILE_PATH2}}
+
+    - name: Build LLVM
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION2}} ${{env.SOLUTION_FILE_PATH2}}
