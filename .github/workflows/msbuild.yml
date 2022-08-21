@@ -8,14 +8,13 @@ on:
 
 env:
   # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH1: ./TestBuild/_projects/vs2019_SolutionExample.sln
-  SOLUTION_FILE_PATH2: ./TestBuild/_projects/vs2022_SolutionExample.sln
-
+  SOLUTION_FILE_PATH: TestBuild/_projects/vs2022_SolutionExample.sln
+  
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION1: ReleaseDefault
-  BUILD_CONFIGURATION2: ReleaseLLVM
+  BUILD_CONFIGURATION_A: ReleaseDefault
+  BUILD_CONFIGURATION_B: ReleaseLLVM
 
 permissions:
   contents: read
@@ -34,28 +33,16 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: TestBuild/Generate.bat 1
       
-    - name: Restore NuGet packages (VS2019)
+    - name: Restore NuGet packages (VS2022)
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH1}}      
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}      
       
     - name: Build Default
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION1}} ${{env.SOLUTION_FILE_PATH1}}
-
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION_A}} ${{env.SOLUTION_FILE_PATH}}
+    
     - name: Build LLVM
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION2}} ${{env.SOLUTION_FILE_PATH1}}
-
-    - name: Restore NuGet packages (VS2022)
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH2}}      
-      
-    - name: Build Default
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION1}} ${{env.SOLUTION_FILE_PATH2}}
-
-    - name: Build LLVM
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION2}} ${{env.SOLUTION_FILE_PATH2}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION_B}} ${{env.SOLUTION_FILE_PATH}}
