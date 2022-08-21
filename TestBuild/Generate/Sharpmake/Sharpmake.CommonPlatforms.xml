@@ -24,9 +24,98 @@
             Apache Ant path
             </summary>
         </member>
+        <member name="M:Sharpmake.Android.Util.GetHostTag">
+            <summary>
+            https://developer.android.com/ndk/guides/other_build_systems#overview
+            </summary>
+            <returns>
+            "darwin-x86_64" on MacOS
+            "linux-x86_64" on Linux
+            "windows" on Windows 32-bit
+            "windows-x86_64" on Windows 64-bit
+            </returns>
+        </member>
+        <member name="M:Sharpmake.Android.Util.GetTargetTriple(Sharpmake.Android.AndroidBuildTargets,System.Boolean,System.String)">
+            <summary>
+            https://developer.android.com/ndk/guides/other_build_systems#overview
+            </summary>
+            <param name="buildTarget"></param>
+            <param name="forCompiler"></param>
+            <param name="vendor"></param>
+            <returns></returns>
+        </member>
         <member name="P:Sharpmake.Linux.GlobalSettings.SystemPathProvider">
             <summary>
             Allows setting a custom provider for system paths
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.GlobalSettings.UseLlvmObjCopy">
+            <summary>
+            Use llvm-objcopy instead of objcopy from binutils when stripping/extracting debug symbols
+            from object files
+            </summary>
+        </member>
+        <member name="T:Sharpmake.Linux.Options.General.VcPlatformToolset">
+            <summary>
+            VC Platform Toolset
+            </summary>
+            <remarks>
+            Specifies which build tools will be used for the project in Visual Studio
+            </remarks>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.General.VcPlatformToolset.Remote_GCC_1_0">
+            <summary>
+            GCC for Remote Linux
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.General.VcPlatformToolset.Remote_Clang_1_0">
+            <summary>
+            Clang for Remote Linux
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.General.VcPlatformToolset.WSL_1_0">
+            <summary>
+            GCC for Windows Subsystem for Linux
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.General.VcPlatformToolset.WSL_Clang_1_0">
+            <summary>
+            Clang for Windows Subsystem for Linux
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.General.VcPlatformToolset.WSL2_1_0">
+            <summary>
+            WSL2 Toolset
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:Sharpmake.Linux.Options.General.StdLib" -->
+        <member name="T:Sharpmake.Linux.Options.General.SysRoot">
+            <summary>
+            SysRoot: logical root for headers and libraries
+            root directory where to look for the directories bin, lib, include
+            </summary>
+        </member>
+        <member name="T:Sharpmake.Linux.Options.Compiler.DebugInformationFormat">
+            <summary>
+            Controls debug information. Matches the <c>-g</c> family of compiler options.
+            </summary>
+            <remarks>
+            Prefer using this switch over <seealso cref="T:Sharpmake.Linux.Options.Compiler.GenerateDebugInformation"/>.
+            </remarks>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.Compiler.DebugInformationFormat.None">
+            <summary>
+            No debug information at all. Corresponds to the <c>-g0</c> switch.
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.Compiler.DebugInformationFormat.MinimalDebugInformation">
+            <summary>
+            Outputs some debug information. Corresponds to the <c>-g</c> switch.
+            </summary>
+        </member>
+        <member name="F:Sharpmake.Linux.Options.Compiler.DebugInformationFormat.FullDebugInformation">
+            <summary>
+            Outputs full debug information. Corresponds to the <c>-g2 -gdwarf-2</c> switches.
             </summary>
         </member>
         <member name="T:Sharpmake.Linux.Options.Compiler.PositionIndependentCode">
@@ -36,6 +125,23 @@
             <remarks>
             The corresponding clang flags is <c>-fPIC</c>.
             </remarks>
+        </member>
+        <member name="T:Sharpmake.Linux.Options.Linker.ShouldStripDebugSymbols">
+            <summary>
+            Strip debug symbols
+            </summary>
+            <remarks>
+            Whether to strip debug symbols into a separate file after a build.
+            This may speed up debugger launch times.
+            </remarks>
+        </member>
+        <member name="M:Sharpmake.Linux.LinuxPlatform.GetStripDebugSymbolsSteps(Sharpmake.Project.Configuration,System.Boolean)">
+            <summary>
+            Get the list of steps (if any), to strip the exe/dll from debug symbols for FastBuild
+            </summary>
+            <param name="configuration">The configuration</param>
+            <param name="asStampSteps">Indicates if those steps are post build or stamp, the latter being more efficient</param>
+            <returns>The list of steps</returns>
         </member>
     </members>
 </doc>

@@ -19,10 +19,11 @@ public enum BuildToolset
 public class Settings
 {	
 	// Supported Target configurations by this build setup
-	public const DevEnv 		SupportDevEnv 	= DevEnv.vs2019 | DevEnv.vs2022 | DevEnv.make;
+	public const DevEnv 		SupportDevEnv 	= DevEnv.vs2019 | DevEnv.vs2022 | DevEnv.make;		// Programming Environment supported
+	public const DevEnv			SupportLinux	= DevEnv.make | DevEnv.vs2022;						// Which Environments also support linux dev (Note: VS has some compiling path issues)
 	public const Platform 		SupportPlatform = Platform.win32 | Platform.win64 | Platform.linux;
 	public const BuildToolset 	SupportToolset	= BuildToolset.Default | BuildToolset.LLVM;
-	public const Optimization	SupportOptim	= Optimization.Debug|Optimization.Release|Optimization.Retail;
+	public const Optimization	SupportOptim	= Optimization.Debug | Optimization.Release | Optimization.Retail;
 }
 
 //=============================================================================================
@@ -59,10 +60,11 @@ public class CustomTarget : Target
 												Optimization inOptim	= Settings.SupportOptim,
 												BuildToolset inToolset	= Settings.SupportToolset )
 	{		
-		List<CustomTarget> targets = new List<CustomTarget>();
-
+		List<CustomTarget> targets 	= new List<CustomTarget>();
+		DevEnv[] envValues 			= (DevEnv[])Enum.GetValues(typeof(DevEnv));
+		
 		//---------------------------------------------------------------------
-		// Remove all unsupported configuration by this Target
+		// Remove all unsupported configuration by this project generator
 		inDevEnv 	&= Settings.SupportDevEnv;
 		inPlatform 	&= Settings.SupportPlatform;
 		inOptim		&= Settings.SupportOptim;
@@ -70,44 +72,53 @@ public class CustomTarget : Target
 												
 		//---------------------------------------------------------------------
 		// Visual Studio Support
-		foreach (var devEnv in new [] { DevEnv.vs2019, DevEnv.vs2022 })
-		{		
-			Platform platform	= inPlatform & (Platform.win32|Platform.win64);
-			string VSPath		= devEnv.GetVisualStudioDir();
-			if ( ((inDevEnv & devEnv) != 0) && (platform != 0) && Util.DirectoryExists(VSPath) ){
-				BuildToolset toolset = inToolset & BuildToolset.Default;
-				
-				/// Add Visual Studio LLVM support
-				if(Util.FileExists(Path.Combine(ClangForWindows.Settings.LLVMInstallDirVsEmbedded(devEnv), "bin", "clang.exe" ))){
-					toolset |= (inToolset & BuildToolset.LLVM);
+		foreach (var devEnv in envValues)
+		{
+			bool isPow2 = (devEnv & (devEnv - 1)) == 0; // Reject composite enum values
+			if (isPow2 && devEnv.IsVisualStudio() && (devEnv & inDevEnv) != 0 )
+			{
+				Platform platform	= inPlatform & (Platform.win32|Platform.win64);
+				string VSPath		= devEnv.GetVisualStudioDir();
+				if ( (platform != 0) && Util.DirectoryExists(VSPath) ){
+					BuildToolset toolset = inToolset & BuildToolset.Default;
+					
+					/// Add Visual Studio LLVM support
+					if(Util.FileExists(Path.Combine(ClangForWindows.Settings.LLVMInstallDirVsEmbedded(devEnv), "bin", "clang.exe" ))){
+						toolset |= (inToolset & BuildToolset.LLVM);
+					}
+					targets.Add(new CustomTarget(devEnv, platform, inOptim, toolset));
 				}
-				targets.Add(new CustomTarget(devEnv, platform, inOptim, toolset));
 			}
 		}
-		
+
 		//---------------------------------------------------------------------
 		// Visual Studio Linux Support
-		foreach (var devEnv in new [] { DevEnv.vs2022 })
+		foreach (var devEnv in envValues) 
 		{
-			Platform platform	= inPlatform & Platform.linux;
-			string VSLinuxPath	= Path.Combine(devEnv.GetVisualStudioDir(), "Common7", "IDE", "VC", "Linux");
-			if ( (inDevEnv & devEnv) != 0 && (platform != 0) && Util.DirectoryExists(VSLinuxPath)){
-				BuildToolset toolset = inToolset & BuildToolset.Default;
-					
-				// Add Visual Studio LLVM support
-				// ...
-					
-				//TODO Set the project 'Platform Toolset' to use WSL GCC/WSL Clang
-				targets.Add(new CustomTarget(devEnv, platform, inOptim, toolset));
+			bool isPow2 = (devEnv & (devEnv - 1)) == 0; // Reject composite enum values
+			if (isPow2 && devEnv.IsVisualStudio() && (devEnv & Settings.SupportLinux) != 0 && (devEnv & inDevEnv) != 0)
+			{
+				Platform platform 	= inPlatform & Platform.linux;
+				string VSLinuxPath 	= Path.Combine(devEnv.GetVisualStudioDir(), "Common7", "IDE", "VC", "Linux");
+				if ((platform != 0) && Util.DirectoryExists(VSLinuxPath)) {
+					BuildToolset toolset = inToolset & BuildToolset.Default;
+					// Add Visual Studio LLVM support
+					// ...
+					targets.Add(new CustomTarget(devEnv, platform, inOptim, toolset));
+				}
 			}
 		}
-		
+
 		//---------------------------------------------------------------------
 		// Makefile support
-		if( (inDevEnv & DevEnv.make) != 0 ) 
+		if ((inDevEnv & DevEnv.make) != 0)
 		{
-			Platform platform 		= inPlatform 	& (Platform.win32|Platform.win64|Platform.linux);
-			BuildToolset toolset	= inToolset 	& (BuildToolset.Default|BuildToolset.LLVM);
+			Platform platform 		= inPlatform & (Platform.win32 | Platform.win64);
+			BuildToolset toolset 	= inToolset & (BuildToolset.Default | BuildToolset.LLVM);
+			if ( (inPlatform & Platform.linux) != 0 && (Settings.SupportLinux & DevEnv.make) != 0) {
+				platform |= Platform.linux;
+			}
+
 			targets.Add(new CustomTarget(DevEnv.make, platform, inOptim, toolset));
 		}
 		return targets.ToArray();
@@ -146,17 +157,15 @@ public class ProjectBase : Project
 																: Path.Combine("[project.SharpmakeCsPath]" , "..", "_Projects" , "[target.DevEnv]" , "[project.Name]");
 	
 		conf.IntermediatePath	= Path.Combine("[conf.ProjectPath]" , "obj" , "[target.Platform]_[conf.Name]");
-		
-		conf.TargetPath			= IsExe	? Path.Combine("[project.SharpmakeCsPath]" , ".." , "_bin" , "[target.DevEnv]_[target.BuildToolset]_[target.Platform]")
-										: Path.Combine("[conf.ProjectPath]" , "lib" , "[target.Platform]_[conf.Name]");
-		
+		conf.TargetPath			= Path.Combine("[project.SharpmakeCsPath]" , ".." , "_bin" , "[target.DevEnv]_[target.BuildToolset]_[target.Platform]");
+		conf.TargetLibraryPath	= Path.Combine("[conf.ProjectPath]" , "lib" , "[target.Platform]_[conf.Name]");
 		conf.TargetFileSuffix	= @"_[target.Optimization]";
 		
 		//---------------------------------------------------------------------
 		// Visual Studios Options
 		if( target.DevEnv.IsVisualStudio() ){
 			if (target.Optimization == Optimization.Debug){
-				conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);				
+				conf.Options.Add(Options.Vc.Compiler.RuntimeLibrary.MultiThreadedDebugDLL);
 				// Note: Once Clang debug library link error is fixed (in new clang release),
 				// try removing 'MultiThreadedDebugDLL' and enabling asan for clang too
 				if( target.DevEnv > DevEnv.vs2017 && target.BuildToolset == BuildToolset.Default ){
@@ -173,12 +182,13 @@ public class ProjectBase : Project
 			}
 			else if ( target.BuildToolset == BuildToolset.LLVM ){
 				conf.Options.Add(Options.Vc.General.PlatformToolset.ClangCL);
-			}
+			}			
 		}
 		conf.Options.Add(Options.Vc.General.WindowsTargetPlatformVersion.Latest);
 		conf.Options.Add(Options.Vc.General.CharacterSet.Unicode);
 		conf.Options.Add(Options.Vc.General.TreatWarningsAsErrors.Enable);
 		conf.Options.Add(Options.Vc.Linker.TreatLinkerWarningAsErrors.Enable);
+		conf.Options.Add(Linux.Options.General.VcPlatformToolset.WSL2_1_0);
 		
 		//---------------------------------------------------------------------
 		// Makefile Options

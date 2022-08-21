@@ -111,6 +111,14 @@
             <param name="fastBuildOutputFile">The file name of the build output.</param>
             <returns>The list of post build step to execute.</returns>
         </member>
+        <member name="M:Sharpmake.Generators.FastBuild.IPlatformBff.GetExtraStampEvents(Sharpmake.Project.Configuration,System.String)">
+            <summary>
+            Get the extra list of stamp steps to execute for this platform.
+            </summary>
+            <param name="configuration">The project configuration</param>
+            <param name="fastBuildOutputFile">The file name of the build output.</param>
+            <returns>The list of stamp step to execute.</returns>
+        </member>
         <member name="M:Sharpmake.Generators.FastBuild.IPlatformBff.GetOutputFilename(Sharpmake.Project.Configuration.OutputType,System.String)">
             <summary>
             Get the linker output name for this platform.
@@ -238,6 +246,12 @@
             <param name="value">The value of the symbol when resolving.</param>
             <returns>An object that implements <see cref="T:System.IDisposable"/> and will automatically undefine the variable when it's <see cref="M:System.IDisposable.Dispose"/> method is invoked.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="fileGenerator"/> or <paramref name="identifier"/> is null.</exception>
+        </member>
+        <member name="M:Sharpmake.Generators.VisualStudio.CSproj.ItemGroups.FrameworkReference.Resolve(Sharpmake.Resolver)">
+            <inheritdoc />
+        </member>
+        <member name="M:Sharpmake.Generators.VisualStudio.CSproj.ItemGroups.Protobuf.Resolve(Sharpmake.Resolver)">
+            <inheritdoc />
         </member>
         <member name="M:Sharpmake.Generators.VisualStudio.CSproj.AddContentGeneratedItem(Sharpmake.Generators.VisualStudio.CSproj.ItemGroups,System.String,System.String,System.String,System.Boolean,System.String,Sharpmake.CSharpProject,System.Boolean)">
             <summary>
