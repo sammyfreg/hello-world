@@ -19,11 +19,12 @@ public enum BuildToolset
 public class Settings
 {	
 	// Supported Target configurations by this build setup
-	public const DevEnv 		SupportDevEnv 	= DevEnv.vs2019 | DevEnv.vs2022 | DevEnv.make;		// Programming Environment supported
-	public const DevEnv			SupportLinux	= DevEnv.make | DevEnv.vs2022;						// Which Environments also support linux dev (Note: VS has some compiling path issues)
-	public const Platform 		SupportPlatform = Platform.win32 | Platform.win64 | Platform.linux;
-	public const BuildToolset 	SupportToolset	= BuildToolset.Default | BuildToolset.LLVM;
-	public const Optimization	SupportOptim	= Optimization.Debug | Optimization.Release | Optimization.Retail;
+	public const DevEnv 			SupportDevEnv 	= DevEnv.vs2019 | DevEnv.vs2022 | DevEnv.make;				// Programming Environment supported
+	public const DevEnv				SupportLinux	= DevEnv.make | DevEnv.vs2022;								// Which Environments also support linux dev (Note: VS has some compiling path issues)
+	public const Platform 			SupportPlatform = Platform.win32 | Platform.win64 | Platform.linux;
+	public const BuildToolset 		SupportToolset	= BuildToolset.Default | BuildToolset.LLVM;
+	public const Optimization		SupportOptim	= Optimization.Debug | Optimization.Release | Optimization.Retail;
+	public static readonly string 	RootPath		= Path.Combine(Util.PathMakeStandard(AppDomain.CurrentDomain.BaseDirectory), "..", "..", "..");	// Root path of project from which everything is generated
 }
 
 //=============================================================================================
@@ -153,12 +154,12 @@ public class ProjectBase : Project
 		conf.Output				= IsExe ? Project.Configuration.OutputType.Exe : Project.Configuration.OutputType.Lib;
 		conf.ProjectFileName	= @"[project.Name]";
 		conf.ProjectPath		= @"[solution.Name]";
-		conf.ProjectPath 		= target.IsPlatformNameNeeded()	? Path.Combine("[project.SharpmakeCsPath]" , "..", "_Projects" , "[target.DevEnv]_[target.Platform]" , "[project.Name]")
-																: Path.Combine("[project.SharpmakeCsPath]" , "..", "_Projects" , "[target.DevEnv]" , "[project.Name]");
+		conf.ProjectPath 		= target.IsPlatformNameNeeded()	? Path.Combine(Settings.RootPath, "_Projects", "[target.DevEnv]_[target.Platform]" , "[project.Name]")
+																: Path.Combine(Settings.RootPath, "_Projects", "[target.DevEnv]" , "[project.Name]");
 	
 		conf.IntermediatePath	= Path.Combine("[conf.ProjectPath]" , "obj" , "[target.Platform]_[conf.Name]");
-		conf.TargetPath			= Path.Combine("[project.SharpmakeCsPath]" , ".." , "_bin" , "[target.DevEnv]_[target.BuildToolset]_[target.Platform]");
 		conf.TargetLibraryPath	= Path.Combine("[conf.ProjectPath]" , "lib" , "[target.Platform]_[conf.Name]");
+		conf.TargetPath			= Path.Combine(Settings.RootPath, "_bin" , "[target.DevEnv]_[target.BuildToolset]_[target.Platform]");
 		conf.TargetFileSuffix	= @"_[target.Optimization]";
 		
 		//---------------------------------------------------------------------
@@ -207,6 +208,13 @@ public class ProjectBase : Project
 		//---------------------------------------------------------------------									
 		// LLVM Options
 		
+		//---------------------------------------------------------------------									
+		// SF
+		//conf.IsFastBuild = true;
+		//conf.FastBuildBlobbed = target.Blob == Blob.FastBuildUnitys;
+
+		// Force writing to pdb from different cl.exe process to go through the pdb server
+		//conf.AdditionalCompilerOptions.Add("/FS");
 	}
 	
 	bool IsExe;
@@ -248,6 +256,6 @@ public class SolutionBase : Sharpmake.Solution
 	{
 		conf.Name				= target.GetConfigName();
 		conf.SolutionFileName	= "[target.DevEnv]_[solution.Name]" + (target.IsPlatformNameNeeded() ? "_[target.Platform]" : "");
-		conf.SolutionPath 		= Path.Combine("[solution.SharpmakeCsPath]" , ".." , "_Projects");
+		conf.SolutionPath 		= Path.Combine(Settings.RootPath, "_Projects");
 	}
 }

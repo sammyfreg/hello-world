@@ -1,5 +1,6 @@
 ﻿using Sharpmake;
 using System;
+using System.IO; // Path
 
 [Generate]
 public class ProjectExampleLib : ProjectBaseLib
@@ -7,7 +8,7 @@ public class ProjectExampleLib : ProjectBaseLib
     public ProjectExampleLib()
 	: base("ExampleLib", true)
     {
-        SourceRootPath = @"[project.SharpmakeCsPath]\..\Sources\ExampleLib";
+        SourceRootPath = Path.Combine(Settings.RootPath, "Sources", "ExampleLib");
     }
 }
 
@@ -17,7 +18,7 @@ public class ProjectExample : ProjectBaseExe
     public ProjectExample()
 	: base("Example", true)
     {
-        SourceRootPath = @"[project.SharpmakeCsPath]\..\Sources\Example";
+        SourceRootPath = Path.Combine(Settings.RootPath, "Sources", "Example");
     }
 	
 	public override void ConfigureAll(Configuration conf, CustomTarget target)
