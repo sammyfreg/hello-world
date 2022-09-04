@@ -16,7 +16,7 @@ setlocal enabledelayedexpansion
 ::  INITIALISATION
 :: ========================================================
 :: List of configurations to build
-set CONFIGS=(debugdefault, releasedefault, retaildefault, debugllvm, releasellvm, retailllvm)
+set CONFIGS=(debug_default, release_default, retail_default, debug_llvm, release_llvm, retail_llvm, debug_default_directx12, release_default_directx12, retail_default_directx12, debug_llvm_directx12, release_llvm_directx12, retail_llvm_directx12)
 set PLATFORM=(win32, win64)
 
 set PROJECTPATH=%~dp0\..\..\_Projects

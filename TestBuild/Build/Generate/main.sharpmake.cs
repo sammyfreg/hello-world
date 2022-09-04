@@ -10,7 +10,7 @@ using System;
 public class SolutionExample : SolutionBase
 {
 	public SolutionExample()
-	: base("SolutionExample", true)
+	: base("SolutionExample", new MyTargetSettings())
     {
     }
     
