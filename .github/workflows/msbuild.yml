@@ -13,8 +13,8 @@ env:
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION_A: ReleaseDefault
-  BUILD_CONFIGURATION_B: ReleaseLLVM
+  BUILD_CONFIGURATION_A: Release_Default
+  BUILD_CONFIGURATION_B: Release_LLVM
 
 permissions:
   contents: read
